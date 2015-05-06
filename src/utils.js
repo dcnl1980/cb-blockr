@@ -1,5 +1,5 @@
 var assert = require('assert')
-var request = require('httpify')
+var request = require('superagent')
 var async = require('async')
 var proxyURL;
 
@@ -19,13 +19,14 @@ function handleJSend(callback) {
   return function(err, response) {
     if (err) return callback(err)
 
+    var body = JSON.parse(response.text)
     try {
-      assertJSend(response.body)
+      assertJSend(body)
     } catch (exception) {
       return callback(exception)
     }
 
-    callback(null, response.body.data)
+    callback(null, body.data)
   }
 }
 
@@ -80,12 +81,10 @@ function makeRequest(uri, params, callback){
     uri = proxyURL + encodeURIComponent(uri)
   }
 
-  request({
-    uri: uri,
-    method: 'GET',
-    type: 'json',
-    timeout: 20000
-  }, handleJSend(callback))
+  request
+    .get(uri)
+    .timeout(20000)
+    .end(handleJSend(callback))
 }
 
 function makePostRequest(uri, form, callback){
@@ -93,13 +92,11 @@ function makePostRequest(uri, form, callback){
     uri = proxyURL + encodeURIComponent(uri)
   }
 
-  request({
-    url: uri,
-    method: 'POST',
-    type: 'json',
-    timeout: 10000,
-    form: form
-  }, handleJSend(callback))
+  request
+    .post(uri)
+    .timeout(20000)
+    .send(form)
+    .end(handleJSend(callback))
 }
 
 function setProxyURL(url) {

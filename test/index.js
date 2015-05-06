@@ -1,5 +1,5 @@
 var assert = require('assert')
-var request = require('httpify')
+var request = require('superagent')
 var mockery = require('mockery')
 var Blockchain = require('../src/index')
 
@@ -53,13 +53,18 @@ describe('cb-tests with proxy', function() {
       warnOnUnregistered: false
     })
 
-    mockery.registerMock('httpify', function(options, callback) {
-      if(options.url && options.url.indexOf("https://tbtc.blockr.io/api/") === 0) {
-        assert.fail(options.uri, proxyURL, "Expect proxy URL used for request, but currently requesting blockr API directly")
-      } else {
-        request.apply(null, arguments)
+    var smock = {}
+    ;['get', 'post'].forEach(function(method) {
+      smock[method] = function(url) {
+        if (url && url.indexOf("https://tbtc.blockr.io/api/") === 0) {
+          assert.fail(options.uri, proxyURL, "Expect proxy URL used for request, but currently requesting blockr API directly")
+        } else {
+          return request[method].apply(request, arguments)
+        }
       }
     })
+
+    mockery.registerMock('superagent', smock)
 
     Blockchain = require('../src/index')
   })
