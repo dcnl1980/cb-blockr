@@ -2,6 +2,8 @@ var assert = require('assert')
 var request = require('superagent')
 var async = require('async')
 var proxyURL;
+var REQ_THROTTLE = 500
+var POST_REQ_THROTTLE = 1000
 
 function btcToSatoshi(value) {
   return Math.round(1e8 * parseFloat(value))
@@ -51,7 +53,6 @@ function batchRequest(uri, items, options, callback) {
 
   if(items.length > 0) batches.push(items)
 
-
   var requests = batches.map(function(batch) {
     return function(cb) {
       makeRequest(uri + batch.join(','), params, cb)
@@ -70,7 +71,7 @@ function batchRequest(uri, items, options, callback) {
   })
 }
 
-function makeRequest(uri, params, callback){
+var makeRequest = throttle(function makeRequest(uri, params, callback){
   if(Array.isArray(params)){
     uri +=  '?' + params.join('&')
   } else if (params instanceof Function) {
@@ -85,9 +86,9 @@ function makeRequest(uri, params, callback){
     .get(uri)
     .timeout(20000)
     .end(handleJSend(callback))
-}
+}, REQ_THROTTLE)
 
-function makePostRequest(uri, form, callback){
+var makePostRequest = throttle(function makePostRequest(uri, form, callback){
   if(proxyURL) {
     uri = proxyURL + encodeURIComponent(uri)
   }
@@ -97,10 +98,43 @@ function makePostRequest(uri, form, callback){
     .timeout(20000)
     .send(form)
     .end(handleJSend(callback))
-}
+}, POST_REQ_THROTTLE)
 
 function setProxyURL(url) {
   proxyURL = url
+}
+
+// from underscore.js
+function throttle(func, wait, options) {
+  var context, args, result;
+  var timeout = null;
+  var previous = 0;
+  if (!options) options = {};
+  var later = function() {
+    previous = options.leading === false ? 0 : Date.now();
+    timeout = null;
+    result = func.apply(context, args);
+    if (!timeout) context = args = null;
+  };
+  return function() {
+    var now = Date.now();
+    if (!previous && options.leading === false) previous = now;
+    var remaining = wait - (now - previous);
+    context = this;
+    args = arguments;
+    if (remaining <= 0 || remaining > wait) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      previous = now;
+      result = func.apply(context, args);
+      if (!timeout) context = args = null;
+    } else if (!timeout && options.trailing !== false) {
+      timeout = setTimeout(later, remaining);
+    }
+    return result;
+  };
 }
 
 module.exports = {
