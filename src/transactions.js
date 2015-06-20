@@ -9,7 +9,7 @@ function Transactions(url) {
 Transactions.prototype.summary = function(txIds, callback) {
   var uri = this.url + "info/"
 
-  utils.batchRequest(uri, txIds, {params: ["output=hivewallet"]}, function(err, data) {
+  utils.batchRequest(uri, txIds, function(err, data) {
     if(err) return callback(err)
 
     var results = data.map(function(d) {
@@ -40,7 +40,7 @@ Transactions.prototype.get = function(txIds, callback) {
   var uri = this.url + "raw/"
 
   var queryTxIds = [].concat(txIds)
-  utils.batchRequest(uri, queryTxIds, {params: ["output=hivewallet"]}, function(err, data) {
+  utils.batchRequest(uri, queryTxIds, function(err, data) {
     if (err) return callback(err)
 
     var results = data.map(function(d, i) {
