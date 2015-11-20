@@ -3,8 +3,6 @@ var request = require('superagent')
 var async = require('async')
 var throttle = require('throttleme')
 var proxyURL;
-var REQ_THROTTLE = 500
-var POST_REQ_THROTTLE = 1000
 
 function btcToSatoshi(value) {
   return Math.round(1e8 * parseFloat(value))
@@ -56,7 +54,7 @@ function batchRequest(uri, items, options, callback) {
 
   var requests = batches.map(function(batch) {
     return function(cb) {
-      makeRequest(uri + batch.join(','), params, cb)
+      module.exports.makeRequest(uri + batch.join(','), params, cb)
     }
   })
 
@@ -72,7 +70,7 @@ function batchRequest(uri, items, options, callback) {
   })
 }
 
-var makeRequest = throttle(function makeRequest(uri, params, callback){
+function makeRequest(uri, params, callback){
   if(Array.isArray(params)){
     uri +=  '?' + params.join('&')
   } else if (params instanceof Function) {
@@ -87,9 +85,9 @@ var makeRequest = throttle(function makeRequest(uri, params, callback){
     .get(uri)
     .timeout(20000)
     .end(handleJSend(callback))
-}, REQ_THROTTLE)
+}
 
-var makePostRequest = throttle(function makePostRequest(uri, form, callback){
+function makePostRequest(uri, form, callback){
   if(proxyURL) {
     uri = proxyURL + encodeURIComponent(uri)
   }
@@ -99,10 +97,18 @@ var makePostRequest = throttle(function makePostRequest(uri, form, callback){
     .timeout(20000)
     .send(form)
     .end(handleJSend(callback))
-}, POST_REQ_THROTTLE)
+}
 
 function setProxyURL(url) {
   proxyURL = url
+}
+
+function throttleGet (millis) {
+  module.exports.makeRequest = throttle(makeRequest, millis)
+}
+
+function throttlePost (millis) {
+  module.exports.makePostRequest = throttle(makePostRequest, millis)
 }
 
 module.exports = {
@@ -111,5 +117,7 @@ module.exports = {
   batchRequest: batchRequest,
   makeRequest: makeRequest,
   makePostRequest: makePostRequest,
-  setProxyURL: setProxyURL
+  setProxyURL: setProxyURL,
+  throttleGet: throttleGet,
+  throttlePost: throttlePost
 }

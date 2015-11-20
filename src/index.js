@@ -33,5 +33,7 @@ Blockr.Transactions = Transactions
 
 Blockr.prototype.getNetwork = function() { return this.network }
 Blockr.prototype.getProxyURL = function() { return this.proxyURL }
+Blockr.throttleGet = utils.throttleGet
+Blockr.throttlePost = utils.throttlePost
 
 module.exports = Blockr
