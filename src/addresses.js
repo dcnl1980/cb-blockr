@@ -1,6 +1,6 @@
 var async = require('async')
 var utils = require('./utils')
-var bitcoinjs = require('bitcoinjs-lib')
+var bitcoinjs = require('@tradle/bitcoinjs-lib')
 
 function Addresses(url, txEndpoint) {
   this.url = url

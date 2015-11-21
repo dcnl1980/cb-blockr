@@ -1,6 +1,6 @@
 var assert = require('assert')
 var async = require('async')
-var bitcoinjs = require('bitcoinjs-lib')
+var bitcoinjs = require('@tradle/bitcoinjs-lib')
 var utils = require('./utils')
 
 function Blocks(url, txEndpoint) {
