@@ -18,7 +18,9 @@ function assertJSend(body) {
 
 function handleJSend(callback) {
   return function(err, response) {
-    if (err) return callback(err)
+    if (err) {
+      return callback(normalizeError(err, response))
+    }
 
     var body = JSON.parse(response.text)
     try {
@@ -29,6 +31,18 @@ function handleJSend(callback) {
 
     callback(null, body.data)
   }
+}
+
+function normalizeError (err, response) {
+  var body = response && response.body
+  if (!body) return err
+
+  err = new Error(body.message || err.message)
+  for (var p in body) {
+    err[p] = body[p]
+  }
+
+  return err
 }
 
 function batchRequest(uri, items, options, callback) {
