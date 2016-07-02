@@ -80,6 +80,11 @@ function batchRequest(uri, items, options, callback) {
       consolidated = consolidated.concat(r)
     })
 
+    consolidated = consolidated.filter(function (item) {
+      // filter out nulls
+      return item
+    })
+
     callback(null, consolidated)
   })
 }
