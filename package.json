@@ -1,6 +1,6 @@
 {
   "name": "@tradle/cb-blockr",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "common-blockchain-blockr",
   "main": "./src/index.js",
   "scripts": {
