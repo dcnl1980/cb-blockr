@@ -22,7 +22,13 @@ function handleJSend(callback) {
       return callback(normalizeError(err, response))
     }
 
-    var body = JSON.parse(response.text)
+    var body
+    try {
+      body = JSON.parse(response.text)
+    } catch (exception) {
+      return callback(exception)
+    }
+
     try {
       assertJSend(body)
     } catch (exception) {
