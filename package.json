@@ -16,17 +16,17 @@
     "url": "https://github.com/dcnl1980/cb-blockr/issues"
   },
   "dependencies": {
-    "@tradle/bitcoinjs-lib": "^1.6.1",
-    "async": "^3.2.0",
-    "nyc": "^15.0.0",
-    "superagent": "^5.2.2",
+    "@tradle/bitcoinjs-lib": "^1.5.7",
+    "async": "^0.9.0",
+    "superagent": "^1.2.0",
     "throttleme": "^1.0.3"
   },
-  "homepage": "https://github.com/dcnl1980/cb-blockr",
+  "homepage": "https://github.com/weilu/cb-blockr",
   "devDependencies": {
-    "coveralls": "^3.0.9",
-    "istanbul": "^0.4.5",
-    "mocha": "^7.1.0",
-    "mockery": "^2.1.0"
+    "cb-tester": "^0.2.x",
+    "coveralls": "^2.11.2",
+    "istanbul": "^0.3.8",
+    "mocha": "^2.2.0",
+    "mockery": "^1.4.0"
   }
 }
